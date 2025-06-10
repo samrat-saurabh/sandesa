@@ -40,47 +40,40 @@
 </div>
 
 <script>
-  // 🔐 Replace with your Firebase config
+  // 🔐 Firebase config for project "sandesa"
+  const firebaseConfig = {
+    apiKey: "AIzaSyAoyFsUOX-X4VzxEMgjBi22UIRx-Q2Z4GI",
+    authDomain: "sandesa-b119e.firebaseapp.com",
+    databaseURL: "https://sandesa-b119e-default-rtdb.firebaseio.com",
+    projectId: "sandesa-b119e",
+    storageBucket: "sandesa-b119e.appspot.com",
+    messagingSenderId: "685621146891",
+    appId: "1:685621146891:web:1:685621146891:web:9e18ecb3beb88d7279de0e"  // ← yahan apni Web App ka appId daalo
+  };
 
-
-const firebaseConfig = {
-  apiKey: "AIzaSy....",
-  authDomain: "yourapp.firebaseapp.com",
-  databaseURL: "https://yourapp-default-rtdb.firebaseio.com",
-  projectId: "yourapp",
-  storageBucket: "yourapp.appspot.com",
-  messagingSenderId: "....",
-  appId: "...."
-};
-
-
-
-  
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
-
   let currentUser = null;
 
   function signIn() {
     const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider).then(result => {
-      currentUser = result.user;
-      document.getElementById("login").style.display = "none";
-      document.getElementById("chat").style.display = "flex";
-      startChat();
-    });
+    auth.signInWithPopup(provider)
+      .then(result => {
+        currentUser = result.user;
+        document.getElementById("login").style.display = "none";
+        document.getElementById("chat").style.display = "flex";
+        startChat();
+      })
+      .catch(err => console.error("Sign-in error:", err));
   }
 
   function signOut() {
-    auth.signOut().then(() => {
-      location.reload();
-    });
+    auth.signOut().then(() => location.reload());
   }
 
   function sendMessage() {
-    const input = document.getElementById('input');
-    const text = input.value.trim();
+    const text = document.getElementById('input').value.trim();
     if (text && currentUser) {
       db.ref("messages").push({
         text,
@@ -89,7 +82,7 @@ const firebaseConfig = {
         photo: currentUser.photoURL,
         timestamp: Date.now()
       });
-      input.value = '';
+      document.getElementById('input').value = '';
     }
   }
 
@@ -106,21 +99,17 @@ const firebaseConfig = {
         img.src = data.photo;
         sender.appendChild(img);
       }
-      const nameText = document.createTextNode(data.name || "Unknown");
-      sender.appendChild(nameText);
+      sender.appendChild(document.createTextNode(data.name || "Unknown"));
 
       const msg = document.createElement("div");
       msg.textContent = data.text;
 
       const time = document.createElement("div");
       time.className = "time";
-      const date = new Date(data.timestamp);
-      time.textContent = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      time.textContent = new Date(data.timestamp)
+                             .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-      div.appendChild(sender);
-      div.appendChild(msg);
-      div.appendChild(time);
-
+      div.append(sender, msg, time);
       const messages = document.getElementById("messages");
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
